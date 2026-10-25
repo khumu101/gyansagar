@@ -1,0 +1,12 @@
+{% extends "core/base.html" %}
+{% block title %}{{ post.title }} | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span>
+  <a href="{% url 'portal:blog_list' %}">Blogs</a> <span>›</span> <span class="current">{{ post.title|truncatechars:50 }}</span></nav>
+<article class="panel">
+  <h1 style="margin:0 0 6px">{{ post.title }}</h1>
+  <p class="post-meta">{{ post.published_at|date:"d M Y" }}{% if post.author %} · {{ post.author.get_full_name|default:post.author.username }}{% endif %}</p>
+  <div class="prose">{{ post.body|linebreaks }}</div>
+  <a href="{% url 'portal:blog_list' %}" class="btn btn-outline btn-sm">‹ All posts</a>
+</article>
+{% endblock %}

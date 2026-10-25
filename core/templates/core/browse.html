@@ -1,0 +1,72 @@
+{% extends "core/base.html" %}
+{% block title %}{{ title }} | Gyansagar{% endblock %}
+{% block content %}
+
+<nav class="breadcrumb">
+  <a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">{{ title }}</span>
+</nav>
+
+<section class="subject-hero subject-hero-compact">
+  <div class="subject-hero-icon">{{ icon }}</div>
+  <div class="subject-hero-body">
+    <div class="subject-hero-title"><h1>{{ title }}</h1></div>
+    <p class="subject-hero-desc">{{ blurb }} Choose your class, faculty and subject to narrow it down.</p>
+  </div>
+</section>
+
+<form method="get" class="filter-bar" id="filterForm">
+  <select name="level" id="fLevel" aria-label="Class">
+    <option value="">All classes</option>
+    {% for l in levels %}<option value="{{ l.slug }}" {% if sel_level == l %}selected{% endif %}>{{ l.name }}</option>{% endfor %}
+  </select>
+  {% if programs %}
+  <select name="program" id="fProgram" aria-label="Faculty / program">
+    <option value="">All faculties</option>
+    {% for p in programs %}<option value="{{ p.slug }}" {% if sel_program == p %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  {% if subject_options %}
+  <select name="subject" id="fSubject" aria-label="Subject">
+    <option value="">All subjects</option>
+    {% for s in subject_options %}<option value="{{ s.slug }}" {% if sel_subject == s %}selected{% endif %}>{% if s.semester %}Sem {{ s.semester }} · {% endif %}{{ s.name }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <input type="search" name="q" value="{{ q }}" placeholder="Search {{ title|lower }}…" aria-label="Search">
+  <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+  <a href="{% url 'core:browse' section %}" class="btn btn-outline btn-sm">Reset</a>
+</form>
+<script>
+  // Cascade: changing class clears faculty/subject; changing faculty clears subject; then reload the list.
+  (function () {
+    var f = document.getElementById("filterForm");
+    var L = document.getElementById("fLevel"), P = document.getElementById("fProgram"), S = document.getElementById("fSubject");
+    if (L) L.addEventListener("change", function () { if (P) P.value = ""; if (S) S.value = ""; f.submit(); });
+    if (P) P.addEventListener("change", function () { if (S) S.value = ""; f.submit(); });
+    if (S) S.addEventListener("change", function () { f.submit(); });
+  })();
+</script>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <h2 class="panel-title">{{ page_obj.paginator.count }} {{ title }}</h2>
+      <p class="panel-sub">
+        {% if sel_level %}{{ sel_level.name }}{% endif %}{% if sel_program %} › {{ sel_program.name }}{% endif %}{% if sel_subject %} › {{ sel_subject.name }}{% endif %}
+        {% if not sel_level %}All classes{% endif %}
+      </p>
+    </div>
+  </div>
+
+  {% if not user.is_authenticated and page_obj.object_list %}
+  <p class="notice">🔒 <a href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}"><strong>Login</strong></a>
+    or <a href="{% url 'accounts:signup' %}?next={{ request.get_full_path|urlencode }}"><strong>create a free account</strong></a> to open or download.</p>
+  {% endif %}
+
+  <ul class="chapter-list">
+    {% for r in page_obj %}{% include "core/_resource_row.html" with r=r show_subject=True %}
+    {% empty %}<p class="empty-hint">Nothing found. Try another class/subject, or check back after teachers upload more.</p>
+    {% endfor %}
+  </ul>
+  {% include "core/_pager.html" %}
+</section>
+{% endblock %}

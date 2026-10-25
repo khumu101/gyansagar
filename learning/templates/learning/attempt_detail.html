@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% block title %}Result: {{ attempt.quiz.title }} | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <a href="{% url 'learning:quizzes' %}">Practice Tests</a> <span>›</span> <span class="current">Result</span></nav>
+<section class="panel">
+  <h2 class="panel-title">{% if attempt.passed %}🎉 Passed{% else %}📘 Keep practising{% endif %} — {{ attempt.quiz.title }}</h2>
+  <p class="panel-sub">{{ attempt.user.get_username }} scored <strong>{{ attempt.score }}/{{ attempt.total }}</strong> ({{ attempt.percent }}%). Pass mark: {{ attempt.quiz.pass_percent }}%.</p>
+  <a class="btn btn-primary" href="{{ attempt.quiz.get_absolute_url }}">Try again</a>
+  {% for a in answers %}
+  <div class="card" style="margin:12px 0;padding:14px">
+    <p class="card-title">{{ forloop.counter }}. {{ a.question.text }}</p>
+    <p>{% if a.is_correct %}✅{% else %}❌{% endif %} Your answer: {{ a.choice.text|default:"(not answered)" }}</p>
+    {% if not a.is_correct and a.right_choice %}<p>✔ Correct answer: <strong>{{ a.right_choice.text }}</strong></p>{% endif %}
+    {% if a.question.explanation %}<p class="card-sub">💡 {{ a.question.explanation }}</p>{% endif %}
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

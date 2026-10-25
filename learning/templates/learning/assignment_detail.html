@@ -1,0 +1,26 @@
+{% extends "core/base.html" %}
+{% block title %}{{ assignment.title }} | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <a href="{% url 'learning:assignments' %}">Assignments</a> <span>›</span> <span class="current">{{ assignment.title }}</span></nav>
+{% include "accounts/_messages.html" %}
+<section class="panel">
+  <h2 class="panel-title">📤 {{ assignment.title }}</h2>
+  <p class="panel-sub">{{ assignment.subject.name }} · {{ assignment.max_marks }} marks{% if assignment.due_at %} · due {{ assignment.due_at|date:"d M Y, g:i A" }}{% endif %}</p>
+  {% if assignment.instructions %}<p style="white-space:pre-line">{{ assignment.instructions }}</p>{% endif %}
+  {% if submission %}
+  <div class="alert alert-info">Submitted {{ submission.submitted_at|date:"d M Y, g:i A" }}{% if submission.is_late %} (late){% endif %}.
+    {% if submission.file %}<a href="{% url 'learning:submission_file' submission.pk %}">📎 {{ submission.filename }}</a>{% endif %}</div>
+  {% endif %}
+  {% if submission.is_graded %}
+  <div class="alert alert-success">🏅 Marks: <strong>{{ submission.marks|floatformat:"-2" }} / {{ assignment.max_marks }}</strong>{% if submission.feedback %} — {{ submission.feedback }}{% endif %}</div>
+  {% else %}
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    {% include "accounts/_field.html" with field=form.text %}
+    {% include "accounts/_field.html" with field=form.file %}
+    <button class="btn btn-primary btn-lg" type="submit">{% if submission %}Re-submit{% else %}Submit{% endif %}</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

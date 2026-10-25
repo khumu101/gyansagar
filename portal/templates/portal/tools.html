@@ -1,0 +1,128 @@
+{% extends "core/base.html" %}
+{% block title %}Study Tools | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">Study Tools</span></nav>
+<section class="subject-hero subject-hero-compact">
+  <div class="subject-hero-icon">🛠️</div>
+  <div class="subject-hero-body">
+    <div class="subject-hero-title"><h1>Study Tools</h1></div>
+    <p class="subject-hero-desc">Stay focused and track your marks. Everything runs in your browser — nothing is saved.</p>
+  </div>
+</section>
+
+<div class="tool-grid">
+  <!-- Pomodoro -->
+  <div class="tool-card" id="pomo">
+    <h3>⏱️ Focus Timer (Pomodoro)</h3>
+    <div class="tool-row">
+      <button class="btn btn-outline btn-sm" data-mode="25">Focus 25</button>
+      <button class="btn btn-outline btn-sm" data-mode="5">Short break 5</button>
+      <button class="btn btn-outline btn-sm" data-mode="15">Long break 15</button>
+    </div>
+    <div class="timer-face" id="pomoFace">25:00</div>
+    <div class="tool-row">
+      <button class="btn btn-primary" id="pomoStart">Start</button>
+      <button class="btn btn-outline" id="pomoReset">Reset</button>
+    </div>
+    <p class="tool-result" id="pomoMsg"></p>
+  </div>
+
+  <!-- Percentage -->
+  <div class="tool-card">
+    <h3>📊 Marks → Percentage</h3>
+    <div class="form-row"><label for="mObt">Marks obtained</label><input type="number" id="mObt" min="0" step="any" class="form-control"></div>
+    <div class="form-row"><label for="mFull">Full marks</label><input type="number" id="mFull" min="1" step="any" class="form-control" value="100"></div>
+    <button class="btn btn-primary" id="pctBtn">Calculate</button>
+    <p class="tool-result" id="pctOut"></p>
+  </div>
+
+  <!-- GPA -->
+  <div class="tool-card">
+    <h3>🎓 GPA Calculator</h3>
+    <p class="panel-sub" style="margin-bottom:8px">Course · credit hours · grade point (0–4)</p>
+    <div id="gpaRows"></div>
+    <div class="tool-row" style="justify-content:flex-start">
+      <button class="btn btn-outline btn-sm" id="gpaAdd">＋ Add course</button>
+      <button class="btn btn-primary btn-sm" id="gpaCalc">Calculate GPA</button>
+    </div>
+    <p class="tool-result" id="gpaOut"></p>
+  </div>
+
+  <!-- Exam countdown -->
+  <div class="tool-card">
+    <h3>📅 Exam Countdown &amp; Plan</h3>
+    <div class="form-row"><label for="exDate">Exam date</label><input type="date" id="exDate" class="form-control"></div>
+    <div class="form-row"><label for="exCh">Chapters left to study</label><input type="number" id="exCh" min="0" step="1" class="form-control"></div>
+    <button class="btn btn-primary" id="exBtn">Plan it</button>
+    <p class="tool-result" id="exOut"></p>
+  </div>
+</div>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+
+  /* ---- Pomodoro ---- */
+  var mins = 25, left = 25 * 60, timer = null;
+  function fmt(s) { var m = Math.floor(s / 60), r = s % 60; return (m < 10 ? "0" : "") + m + ":" + (r < 10 ? "0" : "") + r; }
+  function show() { $("pomoFace").textContent = fmt(left); }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } $("pomoStart").textContent = "Start"; }
+  function setMode(m) { stop(); mins = m; left = m * 60; $("pomoMsg").textContent = ""; show(); }
+  document.querySelectorAll("#pomo [data-mode]").forEach(function (b) {
+    b.addEventListener("click", function () { setMode(parseInt(b.getAttribute("data-mode"), 10)); });
+  });
+  $("pomoStart").addEventListener("click", function () {
+    if (timer) { stop(); return; }
+    $("pomoStart").textContent = "Pause";
+    timer = setInterval(function () {
+      left -= 1; show();
+      if (left <= 0) { stop(); $("pomoMsg").textContent = "⏰ Time is up! Take a short break."; }
+    }, 1000);
+  });
+  $("pomoReset").addEventListener("click", function () { setMode(mins); });
+
+  /* ---- Percentage ---- */
+  $("pctBtn").addEventListener("click", function () {
+    var o = parseFloat($("mObt").value), f = parseFloat($("mFull").value);
+    $("pctOut").textContent = (isNaN(o) || isNaN(f) || f <= 0 || o < 0 || o > f)
+      ? "Enter valid marks (obtained ≤ full marks)." : "Percentage: " + (o / f * 100).toFixed(2) + "%";
+  });
+
+  /* ---- GPA ---- */
+  function addRow() {
+    var row = document.createElement("div"); row.className = "gpa-row";
+    ["Course", "Credit", "Grade pt"].forEach(function (ph, i) {
+      var inp = document.createElement("input");
+      inp.type = i === 0 ? "text" : "number"; inp.placeholder = ph;
+      if (i > 0) { inp.step = "any"; inp.min = "0"; if (i === 2) inp.max = "4"; }
+      row.appendChild(inp);
+    });
+    var x = document.createElement("button"); x.className = "btn btn-outline btn-sm"; x.type = "button"; x.textContent = "✕";
+    x.addEventListener("click", function () { row.remove(); });
+    row.appendChild(x); $("gpaRows").appendChild(row);
+  }
+  for (var i = 0; i < 4; i++) addRow();
+  $("gpaAdd").addEventListener("click", addRow);
+  $("gpaCalc").addEventListener("click", function () {
+    var pts = 0, cr = 0;
+    document.querySelectorAll("#gpaRows .gpa-row").forEach(function (r) {
+      var c = parseFloat(r.children[1].value), g = parseFloat(r.children[2].value);
+      if (!isNaN(c) && !isNaN(g) && c > 0 && g >= 0 && g <= 4) { pts += c * g; cr += c; }
+    });
+    $("gpaOut").textContent = cr ? "GPA: " + (pts / cr).toFixed(2) + " (" + cr + " credit hours)" : "Add at least one course with credit and grade point.";
+  });
+
+  /* ---- Exam countdown ---- */
+  $("exBtn").addEventListener("click", function () {
+    var d = $("exDate").value, ch = parseInt($("exCh").value, 10), out = $("exOut");
+    if (!d) { out.textContent = "Pick your exam date."; return; }
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var days = Math.round((new Date(d + "T00:00:00") - today) / 86400000);
+    if (days < 0) { out.textContent = "That date has already passed."; return; }
+    var msg = days === 0 ? "Exam is today — all the best! 🍀" : days + " day" + (days === 1 ? "" : "s") + " left.";
+    if (!isNaN(ch) && ch > 0 && days > 0) msg += " Study about " + Math.ceil(ch / days) + " chapter(s) per day.";
+    out.textContent = msg;
+  });
+})();
+</script>
+{% endblock %}

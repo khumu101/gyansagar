@@ -1,0 +1,122 @@
+{% extends "core/base.html" %}
+{% block title %}{{ subject.level.name }} — {{ subject.name }} | Gyansagar{% endblock %}
+{% block content %}
+
+<nav class="breadcrumb">
+  <a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span>
+  <a href="{{ subject.level.get_absolute_url }}">{{ subject.level.name }}</a> <span>›</span>
+  {% if subject.program %}<a href="{{ subject.program.get_absolute_url }}">{{ subject.program.name }}</a> <span>›</span>{% endif %}
+  <a href="{{ subject.level.get_absolute_url }}">All Subjects</a> <span>›</span>
+  <span class="current">{{ subject.name }}</span>
+</nav>
+
+<section class="subject-hero">
+  <div class="subject-hero-icon">📖</div>
+  <div class="subject-hero-body">
+    <div class="subject-hero-title">
+      <h1>{{ subject.level.name }} – {{ subject.name }}</h1>
+      <span class="pill pill-muted">{{ subject.level.subtitle }}</span>
+    </div>
+    <p class="subject-hero-desc">{{ subject.description }}</p>
+    <div class="subject-stats">
+      <div class="stat"><strong>{{ subject.chapters_count }}</strong><span>Chapters</span></div>
+      <div class="stat"><strong>{{ subject.topics_count }}</strong><span>Topics</span></div>
+      <div class="stat"><strong>{{ subject.activities_count }}</strong><span>Activities</span></div>
+      <div class="stat"><strong>{{ subject.books_count }}+</strong><span>Books &amp; Notes</span></div>
+      <div class="stat"><strong>{{ subject.videos_count }}+</strong><span>Videos</span></div>
+    </div>
+  </div>
+  <div class="subject-hero-character" aria-hidden="true">🐻</div>
+</section>
+
+<nav class="tab-bar">
+  {% for key, label, icon in tabs %}
+  <a href="?tab={{ key }}" class="tab {% if active_tab == key %}active{% endif %}">{{ icon }} {{ label }}</a>
+  {% endfor %}
+</nav>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <h2 class="panel-title">Syllabus Overview</h2>
+      <p class="panel-sub">Complete syllabus structure for {{ subject.level.name }} – {{ subject.name }}</p>
+    </div>
+    <a href="{% url 'core:subject_syllabus' subject.slug %}" class="btn btn-outline">⬇ Download Syllabus</a>
+  </div>
+
+  <ol class="chapter-list">
+    {% for ch in chapters %}
+    <li class="chapter-row">
+      <span class="chapter-num">{{ ch.order }}</span>
+      <div class="chapter-info">
+        <p class="chapter-title">{{ ch.title }}</p>
+        <p class="chapter-desc">{{ ch.description }}</p>
+      </div>
+      <div class="chapter-meta">
+        <span>📄 {{ ch.topics_count }} Topics</span>
+        <span>🧩 {{ ch.activities_count }} Activities</span>
+      </div>
+      <a href="?tab=notes&amp;chapter={{ ch.id }}" class="btn btn-primary btn-sm">Start Learning ›</a>
+    </li>
+    {% empty %}
+    <p class="empty-hint">No chapters added for this subject yet.</p>
+    {% endfor %}
+  </ol>
+
+  {% if chapters %}<a href="?tab=syllabus" class="view-full-link">View Full Syllabus ⌄</a>{% endif %}
+</section>
+
+{% include "core/_subject_materials.html" %}
+
+{% endblock %}
+
+{% block sidebar_right %}
+<aside class="right-rail">
+  <div class="card">
+    <div class="card-head">
+      <p class="card-title">Your Progress</p>
+      <a href="#" class="card-link">View Detailed Report</a>
+    </div>
+    <div class="goal-row">
+      <div class="goal-ring" style="--pct: 45%">45%</div>
+      <div>
+        <p class="goal-msg">Great! Keep going.</p>
+        <p class="goal-sub">You've completed some of {{ subject.chapters_count }} chapters</p>
+      </div>
+    </div>
+    <div class="progress-grid">
+      <div class="progress-cell"><strong>—</strong><span>Completed</span></div>
+      <div class="progress-cell"><strong>—</strong><span>In Progress</span></div>
+      <div class="progress-cell"><strong>—</strong><span>Not Started</span></div>
+      <div class="progress-cell"><strong>—</strong><span>Min Studied</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <p class="card-title">Live Classes</p>
+      <a href="?tab=live-classes" class="card-link">View All</a>
+    </div>
+    <div class="live-class-card">
+      <span class="live-avatar">👩‍🏫</span>
+      <div>
+        <p class="live-title">{{ subject.name }} Live Session</p>
+        <p class="live-sub">Teacher · Today</p>
+      </div>
+      <span class="live-badge">● LIVE</span>
+    </div>
+    <a href="?tab=live-classes" class="btn btn-primary btn-block btn-sm">Join Live</a>
+  </div>
+
+  <div class="card">
+    <p class="card-title">Resources</p>
+    <ul class="resource-list">
+      <li><a href="?tab=notes">📗 Books &amp; Notes <span>Explore study materials</span></a></li>
+      <li><a href="?tab=question-banks">❓ Question Banks <span>Practice and test yourself</span></a></li>
+      <li><a href="?tab=question-banks">📄 Old Questions <span>View &amp; practice past questions</span></a></li>
+      <li><a href="?tab=live-classes">🎥 Live Classes <span>Join live interactive classes</span></a></li>
+      <li><a href="?tab=games">🎮 Games <span>Fun games for better learning</span></a></li>
+    </ul>
+  </div>
+</aside>
+{% endblock %}

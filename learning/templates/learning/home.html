@@ -1,0 +1,39 @@
+{% extends "core/base.html" %}
+{% block title %}My Learning | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">My Learning</span></nav>
+{% include "accounts/_messages.html" %}
+<section class="panel">
+  <h2 class="panel-title">📊 My progress</h2>
+  <div class="hub-grid">
+    <div class="category-card"><span class="category-icon">🧠</span><span class="category-name">{{ attempt_count }}</span><span class="category-sub">tests taken</span></div>
+    <div class="category-card"><span class="category-icon">✅</span><span class="category-name">{{ passed_count }}</span><span class="category-sub">passed</span></div>
+    <a class="category-card" href="{% url 'learning:quizzes' %}"><span class="category-icon">▶️</span><span class="category-name">Practice</span><span class="category-sub">take a test</span></a>
+    <a class="category-card" href="{% url 'learning:assignments' %}"><span class="category-icon">📤</span><span class="category-name">Assignments</span><span class="category-sub">submit work</span></a>
+  </div>
+</section>
+<section class="panel">
+  <h2 class="panel-title">📝 To do</h2>
+  <ul class="chapter-list">
+    {% for a in todo %}
+    <li class="chapter-row"><span class="chapter-num">📤</span><div class="chapter-info"><p class="chapter-title">{{ a.title }}</p><p class="chapter-desc">{{ a.subject.name }}{% if a.due_at %} · due {{ a.due_at|date:"d M, g:i A" }}{% endif %}</p></div><a class="btn btn-primary btn-sm" href="{{ a.get_absolute_url }}">Open ›</a></li>
+    {% empty %}<li class="empty-hint">Nothing pending. 🎉</li>{% endfor %}
+  </ul>
+</section>
+<section class="panel">
+  <h2 class="panel-title">🕘 Recent test results</h2>
+  <ul class="chapter-list">
+    {% for a in attempts %}
+    <li class="chapter-row"><span class="chapter-num">{% if a.passed %}✅{% else %}❌{% endif %}</span><div class="chapter-info"><p class="chapter-title">{{ a.quiz.title }}</p><p class="chapter-desc">{{ a.quiz.subject.name }} · {{ a.created_at|date:"d M Y, g:i A" }}</p></div><div class="chapter-meta"><span>{{ a.score }}/{{ a.total }} · {{ a.percent }}%</span></div><a class="btn btn-outline btn-sm" href="{{ a.get_absolute_url }}">Review</a></li>
+    {% empty %}<li class="empty-hint">You haven't taken a test yet.</li>{% endfor %}
+  </ul>
+</section>
+{% if graded %}
+<section class="panel">
+  <h2 class="panel-title">🏅 Graded assignments</h2>
+  <ul class="chapter-list">
+    {% for s in graded %}<li class="chapter-row"><span class="chapter-num">🏅</span><div class="chapter-info"><p class="chapter-title">{{ s.assignment.title }}</p><p class="chapter-desc">{{ s.feedback }}</p></div><div class="chapter-meta"><span>{{ s.marks|floatformat:"-2" }} / {{ s.assignment.max_marks }}</span></div></li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

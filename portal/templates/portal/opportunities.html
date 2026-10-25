@@ -1,0 +1,41 @@
+{% extends "core/base.html" %}
+{% block title %}{{ title }} | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">{{ title }}</span></nav>
+<section class="subject-hero subject-hero-compact">
+  <div class="subject-hero-icon">{{ icon }}</div>
+  <div class="subject-hero-body">
+    <div class="subject-hero-title"><h1>{{ title }}</h1></div>
+    <p class="subject-hero-desc">{{ blurb }}</p>
+  </div>
+</section>
+<form method="get" class="filter-bar">
+  <select name="status" onchange="this.form.submit()" aria-label="Status">
+    <option value="open" {% if status == "open" %}selected{% endif %}>Open now</option>
+    <option value="closed" {% if status == "closed" %}selected{% endif %}>Closed</option>
+    <option value="all" {% if status == "all" %}selected{% endif %}>All</option>
+  </select>
+  <select name="level" onchange="this.form.submit()" aria-label="Class">
+    <option value="">Any class / level</option>
+    {% for l in levels %}<option value="{{ l.slug }}" {% if sel_level == l %}selected{% endif %}>{{ l.name }}</option>{% endfor %}
+  </select>
+  <input type="search" name="q" value="{{ q }}" placeholder="Search…">
+  <button class="btn btn-primary btn-sm" type="submit">Search</button>
+</form>
+<section class="panel">
+  <div class="card-grid">
+    {% for o in page_obj %}
+    <article class="info-card">
+      <span class="badge-soft {% if not o.is_open %}badge-closed{% endif %}">{% if o.is_open %}Open{% else %}Closed{% endif %}</span>
+      <h3>{{ o.title }}</h3>
+      <p class="meta">🏢 {{ o.organization }}{% if o.location %} · 📍 {{ o.location }}{% endif %}</p>
+      {% if o.level %}<p class="meta">🎓 {{ o.level.name }}</p>{% endif %}
+      {% if o.deadline %}<p class="meta">⏰ Deadline: {{ o.deadline|date:"d M Y" }}</p>{% endif %}
+      {% if o.description %}<p>{{ o.description|truncatechars:220 }}</p>{% endif %}
+      {% if o.apply_url %}<a class="btn btn-primary btn-sm" href="{{ o.apply_url }}" target="_blank" rel="noopener noreferrer">Apply / details ↗</a>{% endif %}
+    </article>
+    {% empty %}<p class="empty-hint">Nothing posted here yet. Check back soon!</p>{% endfor %}
+  </div>
+  {% include "core/_pager.html" %}
+</section>
+{% endblock %}

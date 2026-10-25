@@ -1,0 +1,54 @@
+{% extends "core/base.html" %}
+{% block title %}Syllabus | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb">
+  <a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span>
+  {% if sel_level %}<a href="{% url 'core:syllabus' %}">Syllabus</a> <span>›</span> <span class="current">{{ sel_level.name }}{% if sel_program %} · {{ sel_program.name }}{% endif %}</span>
+  {% else %}<span class="current">Syllabus</span>{% endif %}
+</nav>
+
+{% if not sel_level %}
+<section class="panel">
+  <h2 class="panel-title">📑 Syllabus — choose your class</h2>
+  <div class="subject-grid">
+    {% for l in levels %}
+    <a href="?level={{ l.slug }}" class="subject-card"><span class="subject-card-icon">{{ l.icon }}</span>
+      <span class="subject-card-name">{{ l.name }}</span><span class="subject-card-meta">{{ l.subtitle }}</span></a>
+    {% empty %}<p class="empty-hint">No classes yet.</p>{% endfor %}
+  </div>
+</section>
+
+{% elif programs %}
+<section class="panel">
+  <h2 class="panel-title">{{ sel_level.name }} — choose your faculty / program</h2>
+  <div class="program-grid">
+    {% for p in programs %}
+    <a href="?program={{ p.slug }}" class="program-card"><span class="program-icon">{{ p.icon }}</span>
+      <span class="program-name">{{ p.name }}</span><span class="program-meta">{{ p.duration }}</span></a>
+    {% endfor %}
+  </div>
+</section>
+
+{% else %}
+<section class="panel">
+  <div class="panel-head"><div>
+    <h2 class="panel-title">{{ sel_level.name }}{% if sel_program %} · {{ sel_program.name }}{% endif %} syllabus</h2>
+    <p class="panel-sub">Open a subject to see its chapter-wise syllabus.</p></div></div>
+  {% for s in subjects %}
+  <details class="syl-subject">
+    <summary>
+      <strong>{% if s.semester %}Sem {{ s.semester }} · {% endif %}{{ s.name }}</strong>
+      <span class="syl-count">{{ s.chapters_count }} chapter{{ s.chapters_count|pluralize }}</span>
+    </summary>
+    {% if s.description %}<p class="panel-sub">{{ s.description }}</p>{% endif %}
+    <ol class="syl-chapters">
+      {% for ch in s.chapters.all %}<li><strong>{{ ch.title }}</strong>{% if ch.description %} — {{ ch.description }}{% endif %}</li>
+      {% empty %}<li class="empty-hint">No chapters added yet.</li>{% endfor %}
+    </ol>
+    <a href="{{ s.get_absolute_url }}" class="btn btn-outline btn-sm">Open subject ›</a>
+    <a href="{% url 'core:subject_syllabus' s.slug %}" class="btn btn-outline btn-sm">⬇ Download syllabus</a>
+  </details>
+  {% empty %}<p class="empty-hint">No subjects added yet.</p>{% endfor %}
+</section>
+{% endif %}
+{% endblock %}

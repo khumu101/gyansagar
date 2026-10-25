@@ -1,0 +1,19 @@
+{% extends "core/base.html" %}
+{% block title %}Assignments | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">Assignments</span></nav>
+<section class="panel">
+  <h2 class="panel-title">📤 Assignments</h2>
+  {% if my_level %}<p class="panel-sub">Showing assignments for <strong>{{ my_level.name }}</strong>. <a href="?all=1">Show all classes</a></p>{% endif %}
+  <ul class="chapter-list">
+    {% for a in page %}
+    <li class="chapter-row"><span class="chapter-num">📤</span>
+      <div class="chapter-info"><p class="chapter-title">{{ a.title }}</p><p class="chapter-desc">{{ a.subject.level.name }} › {{ a.subject.name }}</p></div>
+      <div class="chapter-meta">{% if a.due_at %}<span>🗓️ {{ a.due_at|date:"d M Y, g:i A" }}{% if a.is_past_due %} (closed){% endif %}</span>{% endif %}
+        <span>{% if a.my_submission.is_graded %}🏅 {{ a.my_submission.marks|floatformat:"-2" }}/{{ a.max_marks }}{% elif a.my_submission %}✔ Submitted{% else %}{{ a.max_marks }} marks{% endif %}</span></div>
+      <a class="btn btn-primary btn-sm" href="{{ a.get_absolute_url }}">{% if user.is_authenticated %}Open ›{% else %}🔒 Login{% endif %}</a></li>
+    {% empty %}<li class="empty-hint">No assignments right now.</li>{% endfor %}
+  </ul>
+  {% include "core/_pager.html" with page_obj=page %}
+</section>
+{% endblock %}

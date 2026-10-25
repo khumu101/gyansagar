@@ -1,0 +1,21 @@
+<li class="chapter-row">
+  <span class="chapter-num">{{ r.icon }}</span>
+  <div class="chapter-info">
+    <p class="chapter-title">{{ r.title }}</p>
+    <p class="chapter-desc">
+      {% if show_subject %}{{ r.subject.level.name }}{% if r.subject.program %} › {{ r.subject.program.name }}{% endif %} › <a href="{{ r.subject.get_absolute_url }}">{{ r.subject.name }}</a>{% if r.chapter %} › Ch.{{ r.chapter.order }} {{ r.chapter.title }}{% endif %}{% if r.description %} — {% endif %}{% elif r.chapter and show_chapter %}Ch.{{ r.chapter.order }} {{ r.chapter.title }}{% if r.description %} — {% endif %}{% endif %}{{ r.description }}
+    </p>
+  </div>
+  <div class="chapter-meta">
+    {% if r.scheduled_at %}<span>🗓️ {{ r.scheduled_at|date:"D, d M Y · g:i A" }}</span>{% endif %}
+    {% if r.year %}<span>📅 {{ r.year }}</span>{% endif %}
+    {% if r.is_text_only %}<span>📖 Read online</span>{% endif %}
+    {% if r.file %}<span>📎 {{ r.extension }}{% if r.size_display %} · {{ r.size_display }}{% endif %}</span>{% endif %}
+    <span>⬇ {{ r.download_count }}</span>
+  </div>
+  <a href="{{ r.get_primary_url }}" class="btn btn-primary btn-sm"{% if r.is_external %} target="_blank" rel="noopener noreferrer"{% endif %}>
+    {% if user.is_authenticated %}{{ r.action_label }} ›{% else %}🔒 Login to {{ r.action_label|lower }}{% endif %}
+  </a>
+  {% if user.is_authenticated and r.file and r.preview_kind %}<a href="{{ r.get_download_url }}" class="btn btn-outline btn-sm" title="Download" aria-label="Download">⬇</a>{% endif %}
+  {% if user.is_authenticated %}<a href="{% url 'core:resource_report' r.pk %}" class="btn btn-outline btn-sm" title="Report a problem with this file" aria-label="Report">🚩</a>{% endif %}
+</li>

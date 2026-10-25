@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% block title %}Report a file | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <a href="{{ resource.subject.get_absolute_url }}">{{ resource.subject.name }}</a> <span>›</span> <span class="current">Report</span></nav>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head"><span class="auth-icon">🚩</span><h1>Report a file</h1><p>{{ resource.title }}</p></div>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      {% include "accounts/_field.html" with field=form.reason %}
+      {% include "accounts/_field.html" with field=form.note %}
+      <button class="btn btn-primary btn-lg btn-block" type="submit">Send report</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

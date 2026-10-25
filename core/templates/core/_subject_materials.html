@@ -1,0 +1,16 @@
+{% for sec in subject_sections %}
+{% if sec.items %}
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <h2 class="panel-title">{{ sec.icon }} {{ sec.label }}</h2>
+      <p class="panel-sub">{{ sec.total }} uploaded</p>
+    </div>
+    <a href="?tab={{ sec.kind }}" class="btn btn-outline btn-sm">View all</a>
+  </div>
+  <ul class="chapter-list">
+    {% for r in sec.items %}{% include "core/_resource_row.html" with r=r show_subject=False show_chapter=True %}{% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endfor %}

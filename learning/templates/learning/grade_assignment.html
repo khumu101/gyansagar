@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% block title %}Grade: {{ assignment.title }} | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <a href="{% url 'learning:grading' %}">Grading</a> <span>›</span> <span class="current">{{ assignment.title }}</span></nav>
+{% include "accounts/_messages.html" %}
+<section class="panel">
+  <h2 class="panel-title">{{ assignment.title }} — submissions</h2>
+  <ul class="chapter-list">
+    {% for s in submissions %}
+    <li class="chapter-row"><span class="chapter-num">{% if s.is_graded %}🏅{% else %}⏳{% endif %}</span>
+      <div class="chapter-info"><p class="chapter-title">{{ s.student.get_full_name|default:s.student.get_username }}</p><p class="chapter-desc">{{ s.submitted_at|date:"d M, g:i A" }}{% if s.is_late %} · late{% endif %}{% if s.file %} · <a href="{% url 'learning:submission_file' s.pk %}">📎 {{ s.filename }}</a>{% endif %}</p></div>
+      <div class="chapter-meta"><span>{% if s.is_graded %}{{ s.marks|floatformat:"-2" }}/{{ assignment.max_marks }}{% else %}not graded{% endif %}</span></div>
+      <a class="btn btn-primary btn-sm" href="{% url 'learning:grade_submission' s.pk %}">{% if s.is_graded %}Edit{% else %}Grade{% endif %}</a></li>
+    {% empty %}<li class="empty-hint">Nobody has submitted yet.</li>{% endfor %}
+  </ul>
+</section>
+{% endblock %}

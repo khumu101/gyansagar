@@ -1,0 +1,29 @@
+{% extends "core/base.html" %}
+{% block title %}Search: {{ query }} | Gyansagar{% endblock %}
+{% block content %}
+
+<section class="panel">
+  <h2 class="panel-title">Search results for "{{ query }}"</h2>
+  <div class="subject-grid">
+    {% for s in results %}
+    <a href="{{ s.get_absolute_url }}" class="subject-card">
+      <span class="subject-card-icon">📘</span>
+      <span class="subject-card-name">{{ s.name }}</span>
+      <span class="subject-card-meta">{{ s.level.name }}{% if s.program %} · {{ s.program.name }}{% endif %}</span>
+    </a>
+    {% empty %}
+    {% if not resources %}<p class="empty-hint">No results matched your search. Try a different keyword.</p>{% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+{% if resources %}
+<section class="panel">
+  <h2 class="panel-title">Notes &amp; materials</h2>
+  <ul class="chapter-list">
+    {% for r in resources %}{% include "core/_resource_row.html" with show_subject=True %}{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% endblock %}

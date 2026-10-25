@@ -1,0 +1,39 @@
+{% extends "core/base.html" %}
+{% block title %}{{ program.name }} | Gyansagar{% endblock %}
+{% block content %}
+
+<nav class="breadcrumb">
+  <a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span>
+  <a href="{{ level.get_absolute_url }}">{{ level.name }}</a> <span>›</span>
+  <span class="current">{{ program.name }}</span>
+</nav>
+
+<section class="subject-hero subject-hero-compact">
+  <div class="subject-hero-icon">{{ program.icon }}</div>
+  <div class="subject-hero-body">
+    <div class="subject-hero-title">
+      <h1>{{ program.name }}</h1>
+      <span class="pill pill-muted">{{ level.name }} · {{ program.duration }}</span>
+    </div>
+    <p class="subject-hero-desc">Choose a subject to see its syllabus, notes, books, videos and more.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Subjects</h2>
+  <div class="subject-grid">
+    {% for s in subjects %}
+    <a href="{{ s.get_absolute_url }}" class="subject-card">
+      <span class="subject-card-icon">📘</span>
+      <span class="subject-card-name">{{ s.name }}</span>
+      <span class="subject-card-meta">{{ s.chapters_count }} Chapters</span>
+    </a>
+    {% empty %}
+    <p class="empty-hint">No subjects added for {{ program.name }} yet — add some from the Django admin.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% include "core/_materials.html" %}
+
+{% endblock %}

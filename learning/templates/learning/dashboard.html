@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+{% block title %}Site statistics | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">Site statistics</span></nav>
+<section class="panel">
+  <h2 class="panel-title">📈 Site statistics</h2>
+  <div class="hub-grid">
+    <div class="category-card"><span class="category-icon">👥</span><span class="category-name">{{ users_total }}</span><span class="category-sub">users · +{{ users_7d }} this week</span></div>
+    <div class="category-card"><span class="category-icon">📚</span><span class="category-name">{{ resources_total }}</span><span class="category-sub">published files · {{ resources_hidden }} hidden</span></div>
+    <div class="category-card"><span class="category-icon">⬇</span><span class="category-name">{{ downloads_total }}</span><span class="category-sub">downloads / opens</span></div>
+    <div class="category-card"><span class="category-icon">🧠</span><span class="category-name">{{ attempts_total }}</span><span class="category-sub">tests taken{% if attempts_avg is not None %} · avg {{ attempts_avg }}% · {{ pass_rate }}% pass{% endif %}</span></div>
+    <a class="category-card" href="{% url 'admin:core_resourcereport_changelist' %}?resolved__exact=0"><span class="category-icon">🚩</span><span class="category-name">{{ open_reports }}</span><span class="category-sub">open reports</span></a>
+    <a class="category-card" href="{% url 'learning:grading' %}"><span class="category-icon">⏳</span><span class="category-name">{{ pending_grading }}</span><span class="category-sub">submissions to grade</span></a>
+    <div class="category-card"><span class="category-icon">✉️</span><span class="category-name">{{ users_unverified }}</span><span class="category-sub">unverified e-mails</span></div>
+    <div class="category-card"><span class="category-icon">📘</span><span class="category-name">{{ subjects_total }}</span><span class="category-sub">subjects</span></div>
+  </div>
+</section>
+<section class="panel">
+  <h2 class="panel-title">New sign-ups (last 14 days)</h2>
+  <div style="display:flex;align-items:flex-end;gap:6px;height:120px">
+    {% for d, n, pct in series %}
+    <div title="{{ d|date:'d M' }}: {{ n }}" style="flex:1;text-align:center;font-size:11px">
+      <div style="background:var(--green-700,#15803d);height:{{ pct }}px;min-height:2px;border-radius:3px 3px 0 0"></div>{{ d|date:"j" }}
+    </div>{% endfor %}
+  </div>
+</section>
+<section class="panel">
+  <h2 class="panel-title">Most downloaded files</h2>
+  <ul class="chapter-list">
+    {% for r in top_resources %}<li class="chapter-row"><span class="chapter-num">{{ r.icon }}</span><div class="chapter-info"><p class="chapter-title">{{ r.title }}</p><p class="chapter-desc">{{ r.subject.name }}</p></div><div class="chapter-meta"><span>⬇ {{ r.download_count }}</span></div></li>
+    {% empty %}<li class="empty-hint">No downloads yet.</li>{% endfor %}
+  </ul>
+</section>
+<section class="panel">
+  <h2 class="panel-title">Most popular subjects</h2>
+  <ul class="chapter-list">
+    {% for s in top_subjects %}<li class="chapter-row"><span class="chapter-num">📘</span><div class="chapter-info"><p class="chapter-title">{{ s.name }}</p><p class="chapter-desc">{{ s.level.name }}</p></div><div class="chapter-meta"><span>⬇ {{ s.dl|default:0 }}</span></div></li>{% endfor %}
+  </ul>
+</section>
+{% endblock %}

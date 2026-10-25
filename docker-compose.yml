@@ -1,0 +1,81 @@
+# Gyansagar production stack:  docker compose up -d --build
+# nginx listens on 127.0.0.1:8080 - put Caddy / certbot / Cloudflare in front of it for HTTPS (see DEPLOY.md).
+x-app: &app
+  build: .
+  env_file: .env
+  environment: &app-env
+    DATABASE_URL: postgres://gyansagar:${POSTGRES_PASSWORD}@db:5432/gyansagar
+    REDIS_URL: redis://redis:6379/1
+    DJANGO_ALLOWED_HOSTS: ${DOMAIN},localhost,web
+    DJANGO_CSRF_TRUSTED_ORIGINS: https://${DOMAIN}
+    DJANGO_BEHIND_PROXY: "1"
+    CLIENT_IP_HEADER: X-Client-IP
+    RESOURCE_SERVE_METHOD: nginx
+  restart: unless-stopped
+
+services:
+  web:
+    <<: *app
+    volumes:
+      - static:/data/static
+      - media:/data/media
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_started}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen(u.Request('http://127.0.0.1:8000/readyz/', headers={'Host': 'localhost'}), timeout=4)"]
+      interval: 30s
+      timeout: 6s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gyansagar
+      POSTGRES_USER: gyansagar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gyansagar -d gyansagar"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./deploy/nginx/gyansagar.conf:/etc/nginx/conf.d/default.conf:ro
+      - static:/srv/static:ro
+      - media:/srv/media:ro
+    depends_on:
+      - web
+
+  # Daily backup of database + uploads into ./backups (copy that folder off the server too!)
+  backup:
+    <<: *app
+    entrypoint: []
+    command: ["sh", "-c", "while true; do python manage.py backup --dir /backups --keep ${BACKUP_KEEP:-14}; sleep 86400; done"]
+    environment:
+      <<: *app-env
+      RUN_MIGRATIONS: "0"
+    volumes:
+      - media:/data/media:ro
+      - ./backups:/backups
+    depends_on:
+      db: {condition: service_healthy}
+
+volumes:
+  pgdata:
+  static:
+  media:

@@ -1,0 +1,30 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %}Login | Gyansagar{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/extras.css' %}">{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <span class="auth-icon">🎓</span>
+      <h1>Welcome back</h1>
+      <p>Login to continue your learning journey.</p>
+    </div>
+    {% include "accounts/_messages.html" %}
+    {% include "accounts/_google_button.html" %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      {% include "accounts/_field.html" with field=form.username %}
+      {% include "accounts/_field.html" with field=form.password %}
+      <div class="form-inline">
+        {% include "accounts/_field.html" with field=form.remember_me %}
+        <a href="{% url 'accounts:password_reset' %}" class="card-link">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
+    </form>
+    <p class="auth-switch">New to Gyansagar? <a href="{% url 'accounts:signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Create an account</a></p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: {POSTGRES_PASSWORD: postgres, POSTGRES_DB: gyansagar}
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 3s --health-retries 10
+    strategy:
+      matrix:
+        db: [sqlite, postgres]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13", cache: pip}
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - run: pip install -r requirements.txt
+      - name: Tests
+        env:
+          DATABASE_URL: ${{ matrix.db == 'postgres' && 'postgres://postgres:postgres@localhost:5432/gyansagar' || '' }}
+        run: python manage.py test --verbosity 1
+      - name: Migrations are up to date
+        run: python manage.py makemigrations --check --dry-run
+      - name: Deployment check
+        env:
+          DJANGO_DEBUG: "0"
+          DJANGO_SECRET_KEY: ci-only-not-secret-ci-only-not-secret-ci-only-not-secret
+          DJANGO_ALLOWED_HOSTS: example.com
+          DJANGO_BEHIND_PROXY: "1"
+          DJANGO_HSTS_PRELOAD: "1"
+        run: python manage.py check --deploy --fail-level WARNING

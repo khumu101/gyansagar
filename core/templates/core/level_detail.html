@@ -1,0 +1,55 @@
+{% extends "core/base.html" %}
+{% block title %}{{ level.name }} | Gyansagar{% endblock %}
+{% block content %}
+
+<nav class="breadcrumb">
+  <a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span>
+  <span class="current">{{ level.name }}</span>
+</nav>
+
+<section class="subject-hero subject-hero-compact">
+  <div class="subject-hero-icon">{{ level.icon }}</div>
+  <div class="subject-hero-body">
+    <div class="subject-hero-title">
+      <h1>{{ level.name }}</h1>
+      <span class="pill pill-muted">{{ level.subtitle }}</span>
+    </div>
+    <p class="subject-hero-desc">
+      {% if programs %}Choose a program to see its subjects, syllabus and resources.{% else %}Choose a subject to see notes, books, videos and more.{% endif %}
+    </p>
+  </div>
+</section>
+
+{% if programs %}
+<section class="panel">
+  <h2 class="panel-title">Programs</h2>
+  <div class="program-grid">
+    {% for p in programs %}
+    <a href="{{ p.get_absolute_url }}" class="program-card">
+      <span class="program-icon">{{ p.icon }}</span>
+      <span class="program-name">{{ p.name }}</span>
+      <span class="program-meta">{{ p.duration }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="panel">
+  <h2 class="panel-title">Subjects</h2>
+  <div class="subject-grid">
+    {% for s in subjects %}
+    <a href="{{ s.get_absolute_url }}" class="subject-card">
+      <span class="subject-card-icon">📘</span>
+      <span class="subject-card-name">{{ s.name }}</span>
+      <span class="subject-card-meta">{{ s.chapters_count }} Chapters</span>
+    </a>
+    {% empty %}
+    <p class="empty-hint">No subjects added for {{ level.name }} yet — add some from the Django admin.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% include "core/_materials.html" %}
+
+{% endblock %}

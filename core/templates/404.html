@@ -1,0 +1,10 @@
+{% extends "core/base.html" %}
+{% block title %}Page not found | Gyansagar{% endblock %}
+{% block content %}
+<section class="panel" style="text-align:center;padding:60px 0">
+  <p style="font-size:56px;margin:0">🧭</p>
+  <h1>Page not found</h1>
+  <p class="panel-sub">The page you are looking for doesn't exist or has moved.</p>
+  <a href="{% url 'core:home' %}" class="btn btn-primary btn-lg">Back to Home</a>
+</section>
+{% endblock %}

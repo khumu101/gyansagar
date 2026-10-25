@@ -1,0 +1,19 @@
+{% extends "core/base.html" %}
+{% block title %}New post | Gyansagar{% endblock %}
+{% block content %}
+<div class="auth-wrap"><div class="auth-card auth-card-wide">
+  <div class="auth-head"><span class="auth-icon">✍️</span><h1>Start a discussion</h1><p>Be kind and clear — others will help.</p></div>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    {% include "accounts/_field.html" with field=form.title %}
+    <div class="form-grid">
+      {% include "accounts/_field.html" with field=form.level %}
+      {% include "accounts/_field.html" with field=form.subject %}
+    </div>
+    {% include "accounts/_field.html" with field=form.body %}
+    <button type="submit" class="btn btn-primary btn-lg btn-block">Post</button>
+  </form>
+  <p class="auth-switch"><a href="{% url 'portal:community' %}">Cancel</a></p>
+</div></div>
+{% endblock %}

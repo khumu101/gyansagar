@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Gyansagar — Ocean of Knowledge{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="{% static 'css/extras.css' %}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    {% if not hide_sidebar %}<button class="icon-btn" id="sidebarToggle" aria-label="Toggle menu">☰</button>{% endif %}
+    <a href="{% url 'core:home' %}" class="brand">
+      <span class="brand-mark">🎓</span>
+      <span class="brand-text">
+        <span class="brand-name">Gyansagar</span>
+        <span class="brand-tagline">Ocean of Knowledge</span>
+      </span>
+    </a>
+  </div>
+
+  <form class="topbar-search" action="{% url 'core:search' %}" method="get" role="search">
+    <input type="text" name="q" placeholder="Search for courses, notes, videos, questions…" value="{{ query|default:'' }}">
+    <button type="submit" aria-label="Search">🔍</button>
+  </form>
+
+  <div class="topbar-right">
+    <button class="icon-btn lang-btn">🌐 EN</button>
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
+    <button class="icon-btn bell-btn" aria-label="Notifications">🔔<span class="badge">5</span></button>
+    {% if user.is_authenticated %}
+    <a href="{% url 'accounts:profile' %}" class="btn btn-outline">👤 {{ user.first_name|default:user.username }}</a>
+    <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;margin:0">{% csrf_token %}<button type="submit" class="btn btn-primary">Logout</button></form>
+    {% else %}
+    <a href="{% url 'accounts:login' %}" class="btn btn-outline">Login</a>
+    <a href="{% url 'accounts:signup' %}" class="btn btn-primary">Sign Up</a>
+    {% endif %}
+  </div>
+</header>
+
+<nav class="level-bar" aria-label="Education levels">
+  <div class="level-bar-track">
+    {% for lvl in school_levels %}
+      <a class="level-chip {% if level and level.slug == lvl.slug %}active{% endif %}" href="{{ lvl.get_absolute_url }}">
+        <span class="level-icon">{{ lvl.icon }}</span>
+        <span class="level-name">{{ lvl.name }}</span>
+        <span class="level-sub">{{ lvl.subtitle }}</span>
+      </a>
+    {% endfor %}
+    <span class="level-chip level-more" aria-hidden="true">•••</span>
+    {% for lvl in degree_levels %}
+      <a class="level-chip {% if level and level.slug == lvl.slug %}active{% endif %}" href="{{ lvl.get_absolute_url }}">
+        <span class="level-icon">{{ lvl.icon }}</span>
+        <span class="level-name">{{ lvl.name }}</span>
+        <span class="level-sub">{{ lvl.subtitle }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</nav>
+
+<div class="layout">
+  {% if not hide_sidebar %}
+  <aside class="sidebar" id="sidebar">
+    <ul class="sidebar-nav">
+      {% for l in sidebar_links %}
+      <li><a href="{{ l.url }}" class="{% if l.active %}active{% endif %}">{{ l.icon }} {{ l.label }}{% if l.pill %} <span class="pill">{{ l.pill }}</span>{% endif %}</a></li>
+      {% endfor %}
+    </ul>
+
+    <div class="app-promo">
+      <p class="app-promo-title">Get the Gyansagar App</p>
+      <p class="app-promo-sub">Learn anytime, anywhere</p>
+      <div class="app-badges">
+        <span class="app-badge">▶ Google Play</span>
+        <span class="app-badge">🍎 App Store</span>
+      </div>
+    </div>
+  </aside>
+  {% endif %}
+
+  <main class="content">
+    {% if email_unverified %}
+    <div class="alert alert-info" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <span>✉️ Please verify your e-mail <strong>{{ user.email }}</strong>. Check your inbox for the link.</span>
+      <form action="{% url 'accounts:resend_verification' %}" method="post" style="margin:0">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn btn-outline btn-sm" type="submit">Resend link</button></form>
+    </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block sidebar_right %}{% endblock %}
+</div>
+
+<script src="{% static 'js/app.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

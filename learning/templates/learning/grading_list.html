@@ -1,0 +1,15 @@
+{% extends "core/base.html" %}
+{% block title %}Grading | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">Grading</span></nav>
+<section class="panel">
+  <h2 class="panel-title">🧑‍🏫 Assignments to grade</h2>
+  <ul class="chapter-list">
+    {% for a in assignments %}
+    <li class="chapter-row"><span class="chapter-num">📤</span><div class="chapter-info"><p class="chapter-title">{{ a.title }}</p><p class="chapter-desc">{{ a.subject.level.name }} › {{ a.subject.name }}</p></div>
+      <div class="chapter-meta"><span>{{ a.total }} submitted</span><span>⏳ {{ a.pending }} to grade</span></div>
+      <a class="btn btn-primary btn-sm" href="{% url 'learning:grade_assignment' a.pk %}">Open ›</a></li>
+    {% empty %}<li class="empty-hint">No assignments yet. Add one in the admin panel → Assignments.</li>{% endfor %}
+  </ul>
+</section>
+{% endblock %}

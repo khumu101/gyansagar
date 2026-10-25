@@ -1,0 +1,37 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %}Sign Up | Gyansagar{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/extras.css' %}">{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card auth-card-wide">
+    <div class="auth-head">
+      <span class="auth-icon">🚀</span>
+      <h1>Create your account</h1>
+      <p>Free access to notes, books, videos, old questions and more.</p>
+    </div>
+    {% include "accounts/_google_button.html" %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      <div class="form-grid">
+        {% include "accounts/_field.html" with field=form.first_name %}
+        {% include "accounts/_field.html" with field=form.last_name %}
+      </div>
+      {% include "accounts/_field.html" with field=form.username %}
+      {% include "accounts/_field.html" with field=form.email %}
+      <div class="form-grid">
+        {% include "accounts/_field.html" with field=form.level %}
+        {% include "accounts/_field.html" with field=form.program %}
+      </div>
+      <div class="form-grid">
+        {% include "accounts/_field.html" with field=form.password1 %}
+        {% include "accounts/_field.html" with field=form.password2 %}
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Sign Up</button>
+    </form>
+    <p class="auth-switch">Already have an account? <a href="{% url 'accounts:login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Login</a></p>
+  </div>
+</div>
+{% endblock %}

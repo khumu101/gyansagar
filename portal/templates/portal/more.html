@@ -1,0 +1,32 @@
+{% extends "core/base.html" %}
+{% block title %}More | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">More</span></nav>
+{% include "accounts/_messages.html" %}
+<section class="panel">
+  <h2 class="panel-title">Everything on Gyansagar</h2>
+  <div class="hub-grid">
+    {% for l in sidebar_links %}{% if l.label != "More" %}
+    <a href="{{ l.url }}" class="category-card"><span class="category-icon">{{ l.icon }}</span><span class="category-name">{{ l.label }}</span></a>
+    {% endif %}{% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">✉️ Contact us</h2>
+  <p class="panel-sub">Questions, feedback or want to contribute notes? Send us a message.</p>
+  <div class="auth-card auth-card-wide" style="margin:14px 0 0;box-shadow:none">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      <div class="form-grid">
+        {% include "accounts/_field.html" with field=form.name %}
+        {% include "accounts/_field.html" with field=form.email %}
+      </div>
+      {% include "accounts/_field.html" with field=form.subject %}
+      {% include "accounts/_field.html" with field=form.message %}
+      <button class="btn btn-primary btn-lg btn-block" type="submit">Send message</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

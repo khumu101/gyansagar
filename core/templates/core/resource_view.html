@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+{% block title %}{{ resource.title }} | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb">
+  <a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span>
+  <a href="{{ subject.level.get_absolute_url }}">{{ subject.level.name }}</a> <span>›</span>
+  {% if subject.program %}<a href="{{ subject.program.get_absolute_url }}">{{ subject.program.name }}</a> <span>›</span>{% endif %}
+  <a href="{{ subject.get_absolute_url }}">{{ subject.name }}</a> <span>›</span>
+  <span class="current">{{ resource.title }}</span>
+</nav>
+<section class="panel">
+  <div class="viewer-head">
+    <div>
+      <h2 class="panel-title">{{ resource.icon }} {{ resource.title }}</h2>
+      <p class="panel-sub">{{ resource.get_kind_display }}{% if resource.chapter %} · Ch.{{ resource.chapter.order }} {{ resource.chapter.title }}{% endif %}{% if resource.year %} · {{ resource.year }}{% endif %}{% if resource.description %} — {{ resource.description }}{% endif %}</p>
+    </div>
+    <div class="viewer-actions">
+      {% if resource.file %}
+      <a class="btn btn-primary" href="{{ resource.get_download_url }}">⬇ Download{% if resource.size_display %} ({{ resource.size_display }}){% endif %}</a>
+      <a class="btn btn-outline" href="{{ resource.get_open_url }}" target="_blank" rel="noopener noreferrer">↗ Open in new tab</a>
+      {% endif %}
+      <a class="btn btn-outline" href="{% url 'core:resource_report' resource.pk %}">🚩 Report</a>
+    </div>
+  </div>
+
+  {% if kind == "pdf" %}
+    <iframe class="viewer-frame" src="{{ resource.get_open_url }}#toolbar=1&amp;navpanes=0" title="{{ resource.title }}"></iframe>
+    <p class="panel-sub">Can't see the PDF on your phone? Use <strong>Open in new tab</strong> or <strong>Download</strong>.</p>
+  {% elif kind == "image" %}
+    <img class="viewer-media" src="{{ resource.get_open_url }}" alt="{{ resource.title }}">
+  {% elif kind == "video" %}
+    <video class="viewer-media" controls preload="metadata"><source src="{{ resource.get_open_url }}">Your browser cannot play this video. Please download it.</video>
+  {% elif kind == "audio" %}
+    <audio class="viewer-audio" controls preload="metadata" src="{{ resource.get_open_url }}"></audio>
+  {% elif kind == "text" %}
+    <div class="text-note">{{ text }}</div>
+    {% if truncated %}<p class="panel-sub">Only the first part is shown. Download the file to read the rest.</p>{% endif %}
+  {% endif %}
+</section>
+{% endblock %}

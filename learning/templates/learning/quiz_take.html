@@ -1,0 +1,22 @@
+{% extends "core/base.html" %}
+{% block title %}{{ quiz.title }} | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <a href="{% url 'learning:quizzes' %}">Practice Tests</a> <span>›</span> <span class="current">{{ quiz.title }}</span></nav>
+<section class="panel">
+  <h2 class="panel-title">🧠 {{ quiz.title }}</h2>
+  <p class="panel-sub">{{ quiz.subject.name }} · {{ questions|length }} questions · pass mark {{ quiz.pass_percent }}%{% if best %} · your best: {{ best.percent }}%{% endif %}</p>
+  {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    {% for q in questions %}
+    <div class="card" style="margin:12px 0;padding:14px">
+      <p class="card-title">{{ forloop.counter }}. {{ q.text }}</p>
+      {% for c in q.choices.all %}
+      <label class="check-label" style="display:flex;gap:8px;margin:6px 0"><input type="radio" name="q{{ q.pk }}" value="{{ c.pk }}"> <span>{{ c.text }}</span></label>
+      {% endfor %}
+    </div>
+    {% endfor %}
+    <button class="btn btn-primary btn-lg" type="submit">Submit answers</button>
+  </form>
+</section>
+{% endblock %}

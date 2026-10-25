@@ -1,0 +1,33 @@
+<section class="panel" id="materials">
+  <div class="panel-head">
+    <div>
+      <h2 class="panel-title">📚 Notes &amp; Study Material</h2>
+      <p class="panel-sub">Uploaded for {{ level.name }}{% if program %} · {{ program.name }}{% endif %}, subject-wise.</p>
+    </div>
+  </div>
+
+  {% if kind_chips|length > 2 %}
+  <nav class="tab-bar">
+    {% for c in kind_chips %}
+    <a href="?{% if c.key %}kind={{ c.key }}{% endif %}#materials" class="tab {% if c.key == active_kind %}active{% endif %}">{{ c.label }}</a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+
+  {% if not user.is_authenticated and material_groups %}
+  <p class="notice">🔒 <a href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}"><strong>Login</strong></a>
+    or <a href="{% url 'accounts:signup' %}?next={{ request.get_full_path|urlencode }}"><strong>create a free account</strong></a> to open or download these.</p>
+  {% endif %}
+
+  {% for g in material_groups %}
+    <h3 class="res-group">📘
+      {% if g.program and not program %}{{ g.program.name }} · {% endif %}{% if g.subject.semester %}Semester {{ g.subject.semester }} · {% endif %}<a href="{{ g.subject.get_absolute_url }}">{{ g.subject.name }}</a>
+    </h3>
+    <ul class="chapter-list">
+      {% for r in g.items %}{% include "core/_resource_row.html" with r=r show_subject=False show_chapter=True %}{% endfor %}
+    </ul>
+  {% empty %}
+    <p class="empty-hint">Nothing uploaded yet. Notes uploaded for this {% if program %}program{% else %}class{% endif %} will appear here automatically.</p>
+  {% endfor %}
+  {% if material_truncated %}<p class="empty-hint">Showing the latest {{ material_groups|length }} subjects' material — open a subject to see everything.</p>{% endif %}
+</section>

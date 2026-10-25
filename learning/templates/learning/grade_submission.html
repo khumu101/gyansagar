@@ -1,0 +1,15 @@
+{% extends "core/base.html" %}
+{% block title %}Grade submission | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'learning:grading' %}">Grading</a> <span>›</span> <a href="{% url 'learning:grade_assignment' submission.assignment_id %}">{{ submission.assignment.title }}</a> <span>›</span> <span class="current">{{ submission.student.get_username }}</span></nav>
+<div class="auth-wrap"><div class="auth-card auth-card-wide">
+  <div class="auth-head"><span class="auth-icon">🏅</span><h1>{{ submission.student.get_full_name|default:submission.student.get_username }}</h1><p>{{ submission.assignment.title }} · out of {{ submission.assignment.max_marks }}</p></div>
+  {% if submission.text %}<div class="card" style="padding:12px;margin-bottom:12px;white-space:pre-line">{{ submission.text }}</div>{% endif %}
+  {% if submission.file %}<p><a href="{% url 'learning:submission_file' submission.pk %}">📎 {{ submission.filename }}</a></p>{% endif %}
+  <form method="post" novalidate>{% csrf_token %}
+    {% include "accounts/_field.html" with field=form.marks %}
+    {% include "accounts/_field.html" with field=form.feedback %}
+    <button class="btn btn-primary btn-lg btn-block" type="submit">Save marks</button>
+  </form>
+</div></div>
+{% endblock %}

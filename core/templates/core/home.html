@@ -1,0 +1,135 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-copy">
+    <p class="hero-eyebrow">Learn. Practice. Achieve.</p>
+    <h1>From <span class="text-accent">Nursery</span> to <span class="text-accent">PhD</span> —<br>All in One Platform!</h1>
+    <p class="hero-desc">Notes, Videos, Old Questions, Quizzes, Live Classes, AI Tutor, Games and much more.</p>
+    <div class="hero-actions">
+      <a href="#programs" class="btn btn-primary btn-lg">Start Learning</a>
+      <a href="#programs" class="btn btn-outline btn-lg">Explore Courses</a>
+    </div>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="hero-blob"></div>
+    <div class="hero-emoji hero-emoji-1">📖</div>
+    <div class="hero-emoji hero-emoji-2">📊</div>
+    <div class="hero-emoji hero-emoji-3">▶️</div>
+    <div class="hero-character">🧑‍💻</div>
+  </div>
+</section>
+
+<section class="panel" id="programs">
+  <h2 class="panel-title">Explore by Programs / Degrees</h2>
+  <div class="program-grid">
+    {% for p in featured_programs %}
+    <a href="{{ p.get_absolute_url }}" class="program-card">
+      <span class="program-icon">{{ p.icon }}</span>
+      <span class="program-name">{{ p.name }}</span>
+      <span class="program-meta">{{ p.level.name }} · {{ p.duration }}</span>
+    </a>
+    {% empty %}
+    <p class="empty-hint">Run <code>python manage.py seed_demo</code> to load sample programs.</p>
+    {% endfor %}
+  </div>
+
+  <div class="info-strip">
+    <span class="info-icon">ℹ️</span>
+    <p>Select any program or grade from above to explore detailed Syllabus, Notes, Books, Videos, Games, Quizzes and more related to that topic.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Popular Categories</h2>
+  <div class="category-grid">
+    {% for c in categories %}
+    <a href="{{ c.url|default:'#' }}" class="category-card">
+      <span class="category-icon">{{ c.icon }}</span>
+      <span class="category-name">{{ c.name }}</span>
+      <span class="category-sub">{{ c.subtitle }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Why Learn on Gyansagar?</h2>
+  <div class="why-grid">
+    {% for w in why_points %}
+    <div class="why-item">
+      <span class="why-icon">{{ w.icon }}</span>
+      <div>
+        <p class="why-title">{{ w.title }}</p>
+        <p class="why-desc">{{ w.desc }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}
+
+{% block sidebar_right %}
+<aside class="right-rail">
+  <div class="card">
+    {% if user.is_authenticated %}
+    <p class="card-title">Welcome back, {{ user.first_name|default:user.username }}!</p>
+    <p class="card-sub">Pick your class or program above and continue learning.</p>
+    <a href="{% url 'accounts:profile' %}" class="btn btn-primary btn-block">My Profile</a>
+    {% else %}
+    <p class="card-title">Continue Your Learning</p>
+    <p class="card-sub">Login to track your progress, bookmarks and more.</p>
+    <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-block">Login</a>
+    <a href="{% url 'accounts:signup' %}" class="btn btn-outline btn-block">Sign Up</a>
+    <p class="or-divider">Or continue with</p>
+    <div class="social-row">
+      {% if google_enabled %}<a class="social-btn" href="{% url 'accounts:google_login' %}" title="Continue with Google">G</a>{% else %}<span class="social-btn">G</span>{% endif %}
+      <span class="social-btn">f</span>
+      <span class="social-btn">✉</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <p class="card-title">Daily Goal</p>
+      <a href="#" class="card-link">Edit Goal</a>
+    </div>
+    <div class="goal-row">
+      <div class="goal-ring" style="--pct: 60%">60%</div>
+      <div>
+        <p class="goal-msg">Great! You are on track.</p>
+        <p class="goal-sub">Study 2.4 / 4 Hours today</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <p class="card-title">Top Learners</p>
+      <a href="#" class="card-link">View all</a>
+    </div>
+    <ul class="leader-list">
+      <li><span class="leader-rank">1</span><span class="leader-avatar">👦</span><span class="leader-name">Aayush Shrestha</span><span class="leader-xp">2450 XP</span></li>
+      <li><span class="leader-rank">2</span><span class="leader-avatar">👧</span><span class="leader-name">Diya Pandey</span><span class="leader-xp">2300 XP</span></li>
+      <li><span class="leader-rank">3</span><span class="leader-avatar">🧑</span><span class="leader-name">Sijan Karki</span><span class="leader-xp">2100 XP</span></li>
+      <li><span class="leader-rank">4</span><span class="leader-avatar">👩</span><span class="leader-name">Anisha Thapa</span><span class="leader-xp">1950 XP</span></li>
+      <li><span class="leader-rank">5</span><span class="leader-avatar">🧑</span><span class="leader-name">Bibek Acharya</span><span class="leader-xp">1800 XP</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <p class="card-title">Announcements</p>
+      <a href="#" class="card-link">View all</a>
+    </div>
+    <ul class="announce-list">
+      <li><span>🎉</span><div><p>New AI Tutor is now available!</p><span class="announce-time">2 hours ago</span></div></li>
+      <li><span>📗</span><div><p>BE Civil Notes Updated</p><span class="announce-time">3 hours ago</span></div></li>
+      <li><span>🏆</span><div><p>Quiz Competition this Sunday</p><span class="announce-time">1 day ago</span></div></li>
+    </ul>
+  </div>
+</aside>
+{% endblock %}

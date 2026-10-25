@@ -1,0 +1,8 @@
+Django>=5.0,<6.2
+whitenoise>=6.6          # serves CSS/JS in production
+gunicorn>=22.0           # production web server
+psycopg[binary]>=3.1     # PostgreSQL driver
+sentry-sdk>=2.0          # error tracking (only active when SENTRY_DSN is set)
+redis>=5.0               # shared cache/sessions (only active when REDIS_URL is set)
+# Optional - uploads in S3 / Cloudflare R2 / MinIO instead of local disk:
+#   django-storages[s3]>=1.14

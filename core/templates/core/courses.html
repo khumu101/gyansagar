@@ -1,0 +1,35 @@
+{% extends "core/base.html" %}
+{% block title %}Courses | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb">
+  <a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">Courses</span>
+</nav>
+
+<section class="panel">
+  <h2 class="panel-title">School — Nursery to Class 12</h2>
+  <div class="subject-grid">
+    {% for l in school %}
+    <a href="{{ l.get_absolute_url }}" class="subject-card">
+      <span class="subject-card-icon">{{ l.icon }}</span>
+      <span class="subject-card-name">{{ l.name }}</span>
+      <span class="subject-card-meta">{{ l.n_subjects }} Subject{{ l.n_subjects|pluralize }}</span>
+    </a>
+    {% empty %}<p class="empty-hint">No classes yet — add them from the admin panel.</p>{% endfor %}
+  </div>
+</section>
+
+{% for l in degree %}
+<section class="panel">
+  <h2 class="panel-title">{{ l.icon }} {{ l.name }} <a href="{{ l.get_absolute_url }}" class="card-link" style="margin-left:8px">Open ›</a></h2>
+  <div class="program-grid">
+    {% for p in l.programs.all %}
+    <a href="{{ p.get_absolute_url }}" class="program-card">
+      <span class="program-icon">{{ p.icon }}</span>
+      <span class="program-name">{{ p.name }}</span>
+      <span class="program-meta">{{ p.duration }} · {{ p.n_subjects }} subject{{ p.n_subjects|pluralize }}</span>
+    </a>
+    {% empty %}<p class="empty-hint">No programs added under {{ l.name }} yet.</p>{% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}

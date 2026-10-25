@@ -1,0 +1,39 @@
+{% extends "core/base.html" %}
+{% block title %}Schools | Gyansagar{% endblock %}
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">Schools</span></nav>
+<section class="subject-hero subject-hero-compact">
+  <div class="subject-hero-icon">🏫</div>
+  <div class="subject-hero-body">
+    <div class="subject-hero-title"><h1>Schools</h1></div>
+    <p class="subject-hero-desc">Find schools by name or city.</p>
+  </div>
+</section>
+<form method="get" class="filter-bar">
+  <select name="type" aria-label="Type" onchange="this.form.submit()">
+    <option value="">All types</option>
+    {% for k, label in kinds %}<option value="{{ k }}" {% if kind == k %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <input type="search" name="q" value="{{ q }}" placeholder="Search school or city…">
+  <button class="btn btn-primary btn-sm" type="submit">Search</button>
+  <a href="{% url 'portal:schools' %}" class="btn btn-outline btn-sm">Reset</a>
+</form>
+<section class="panel">
+  <div class="card-grid">
+    {% for s in page_obj %}
+    <article class="info-card">
+      <span class="badge-soft">{{ s.get_kind_display }}</span>
+      <h3>{{ s.name }}</h3>
+      <p class="meta">📍 {{ s.city }}{% if s.address %}, {{ s.address }}{% endif %}</p>
+      {% if s.levels_offered %}<p class="meta">🎓 {{ s.levels_offered }}</p>{% endif %}
+      {% if s.description %}<p>{{ s.description }}</p>{% endif %}
+      <p class="meta">
+        {% if s.phone %}📞 {{ s.phone }} {% endif %}{% if s.email %}✉️ {{ s.email }}{% endif %}
+      </p>
+      {% if s.website %}<a class="btn btn-outline btn-sm" href="{{ s.website }}" target="_blank" rel="noopener noreferrer">Visit website ↗</a>{% endif %}
+    </article>
+    {% empty %}<p class="empty-hint">No schools listed yet. Admins can add schools from the admin panel.</p>{% endfor %}
+  </div>
+  {% include "core/_pager.html" %}
+</section>
+{% endblock %}

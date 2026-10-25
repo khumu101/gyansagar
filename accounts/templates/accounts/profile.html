@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %}My Profile | Gyansagar{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/extras.css' %}">{% endblock %}
+{% block content %}
+<nav class="breadcrumb">
+  <a href="{% url 'core:home' %}">🏠 Home</a> <span>›</span> <span class="current">My Profile</span>
+</nav>
+<div class="auth-wrap">
+  <div class="auth-card auth-card-wide">
+    <div class="auth-head">
+      <span class="auth-icon">👤</span>
+      <h1>{{ user.get_full_name|default:user.username }}</h1>
+      <p>@{{ user.username }} · {{ user.profile.get_role_display }}{% if user.profile.email_verified %} · ✅ e-mail verified{% endif %}</p>
+    </div>
+    {% include "accounts/_messages.html" %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-grid">
+        {% include "accounts/_field.html" with field=user_form.first_name %}
+        {% include "accounts/_field.html" with field=user_form.last_name %}
+      </div>
+      {% include "accounts/_field.html" with field=user_form.email %}
+      {% include "accounts/_field.html" with field=profile_form.phone %}
+      <div class="form-grid">
+        {% include "accounts/_field.html" with field=profile_form.level %}
+        {% include "accounts/_field.html" with field=profile_form.program %}
+      </div>
+      {% include "accounts/_field.html" with field=profile_form.bio %}
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Save changes</button>
+    </form>
+    <p class="auth-switch">
+      <a href="{% url 'learning:home' %}">My learning</a> ·
+      {% if user.profile.role == "teacher" or user.is_superuser %}<a href="{% url 'learning:grading' %}">Grading</a> · {% endif %}
+      <a href="{% url 'accounts:password_change' %}">Change password</a>
+      {% if user.is_staff %} · <a href="{% url 'learning:dashboard' %}">Site statistics</a> · <a href="{% url 'admin:index' %}">Open admin panel</a>{% endif %}
+    </p>
+  </div>
+</div>
+{% endblock %}
